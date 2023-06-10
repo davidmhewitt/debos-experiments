@@ -33,5 +33,15 @@ actions:
     description: Run apt upgrade
     chroot: true
     command: apt-get update && apt-get upgrade -y
+  - action: apt
+    description: Install elementary packages
+    packages:
+      - elementary-minimal 
+      - elementary-desktop 
+      - elementary-standard
+    recommends: true
+  - action: run
+    description: Remove unwanted packages
+    script: scripts/remove-unwanted-packages.sh
   - action: pack
     file: {{ $image }}
