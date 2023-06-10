@@ -46,6 +46,9 @@ actions:
   - action: overlay
     description: Raspberry Pi boot configuration
     source: overlays/rpi-boot-config
+  - action: overlay
+    description: Install oneshot root partition expansion service
+    source: overlays/expand-root
   - action: filesystem-deploy
     description: Deploying filesystem onto image
   - action: run
