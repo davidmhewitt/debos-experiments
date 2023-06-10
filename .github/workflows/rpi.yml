@@ -34,7 +34,7 @@ jobs:
         run: |
           cd debos
           go get github.com/go-debos/fakemachine@f70ae41
-          sudo go install ./cmd/debos
+          sudo GOPATH=${{ env.GOPATH }} go install ./cmd/debos
         env:
           GOPATH: /opt/src/gocode
       - uses: actions/checkout@v3
