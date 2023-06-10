@@ -42,3 +42,8 @@ jobs:
         run: |
           sudo /opt/src/gocode/bin/debos --scratchsize=30GB base-arm64.go.yml
           sudo /opt/src/gocode/bin/debos --scratchsize=30GB rpi.go.yml
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rpi-image
+          path: elementary-rpi.img.xz
