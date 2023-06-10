@@ -40,5 +40,5 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build
         run: |
-          sudo /opt/src/gocode/bin/debos base-arm64.go.yml
-          sudo /opt/src/gocode/bin/debos rpi.go.yml
+          sudo /opt/src/gocode/bin/debos --scratchsize=30GB base-arm64.go.yml
+          sudo /opt/src/gocode/bin/debos --scratchsize=30GB rpi.go.yml
