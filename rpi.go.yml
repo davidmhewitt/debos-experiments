@@ -1,0 +1,59 @@
+{{- $image := or .image "elementary.img" -}}
+{{- $suite := or .suite "jammy" -}}
+{{- $variant := or .variant "stable" }}
+
+architecture: arm64
+
+actions:
+  - action: debootstrap
+    mirror: http://ports.ubuntu.com/ubuntu-ports/
+    suite: {{ $suite }}
+    keyring-file: ubuntu-keyring.gpg
+    components:
+      - main
+      - restricted
+      - multiverse
+      - universe
+  - action: overlay
+    description: Add patches PPA
+    source: overlays/patches-ppa
+  {{ if eq $variant "stable" }}
+  - action: overlay
+    description: Add stable PPA
+    source: overlays/stable-ppa
+  {{ else }}
+  - action: overlay
+    description: Add daily PPA
+    source: overlays/daily-ppa
+  {{ end }}
+  - action: run
+    description: Run apt upgrade
+    chroot: true
+    command: apt-get update && apt-get upgrade -y
+  - action: image-partition
+    imagename: {{ $image }}
+    imagesize: 4GB
+    partitiontype: msdos
+    mountpoints:
+      - mountpoint: /
+        partition: root
+      - mountpoint: /boot/firmware
+        partition: firmware
+        options: [ x-systemd.automount ]
+    partitions:
+      - name: firmware
+        fs: fat32
+        start: 0%
+        end: 64MB
+      - name: root
+        fs: ext4
+        start: 64MB
+        end: 100%
+        flags: [ boot ]
+  - action: filesystem-deploy
+    description: Deploying filesystem onto image
+    setup-kernel-cmdline: true
+  - action: run
+    description: Compressing final image
+    postprocess: true
+    command: xz -f {{ $image }}

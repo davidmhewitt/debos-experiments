@@ -1,0 +1,3 @@
+deb https://ppa.launchpadcontent.net/elementary-os/stable/ubuntu jammy main 
+deb-src https://ppa.launchpadcontent.net/elementary-os/stable/ubuntu jammy main 
+
