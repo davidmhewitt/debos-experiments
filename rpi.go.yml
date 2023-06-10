@@ -1,42 +1,19 @@
-{{- $image := or .image "elementary.img" -}}
+{{- $image := or .image "elementary-rpi.img" -}}
 {{- $suite := or .suite "jammy" -}}
 {{- $variant := or .variant "stable" }}
 
 architecture: arm64
 
 actions:
-  - action: debootstrap
-    mirror: http://ports.ubuntu.com/ubuntu-ports/
-    suite: {{ $suite }}
-    keyring-file: ubuntu-keyring.gpg
-    components:
-      - main
-      - restricted
-      - multiverse
-      - universe
-  - action: overlay
-    description: Add patches PPA
-    source: overlays/patches-ppa
-  {{ if eq $variant "stable" }}
-  - action: overlay
-    description: Add stable PPA
-    source: overlays/stable-ppa
-  {{ else }}
-  - action: overlay
-    description: Add daily PPA
-    source: overlays/daily-ppa
-  {{ end }}
-  - action: run
-    description: Run apt upgrade
-    chroot: true
-    command: apt-get update && apt-get upgrade -y
+  - action: unpack
+    file: elementary-base-arm64.tgz
   - action: image-partition
     imagename: {{ $image }}
-    imagesize: 4GB
+    imagesize: 15GB
     partitiontype: msdos
     mountpoints:
       - mountpoint: /
-        partition: root
+        partition: writable
       - mountpoint: /boot/firmware
         partition: firmware
         options: [ x-systemd.automount ]
@@ -44,16 +21,34 @@ actions:
       - name: firmware
         fs: fat32
         start: 0%
-        end: 64MB
-      - name: root
+        end: 256MB
+      - name: writable
         fs: ext4
-        start: 64MB
+        start: 256MB
         end: 100%
         flags: [ boot ]
+  - action: run
+    chroot: true
+    command: mkdir -p /etc/flash-kernel && echo "Raspberry Pi 4 Model B" > /etc/flash-kernel/machine
+  - action: apt
+    description: Install Raspberry Pi kernel and firmware
+    packages:
+      - u-boot-tools
+      - flash-kernel
+      - linux-image-raspi 
+      - linux-firmware-raspi
+  - action: run
+    chroot: true
+    command: mkdir -p /boot/firmware && env FK_FORCE=yes flash-kernel
+  - action: run
+    chroot: true
+    command: rm /etc/flash-kernel/machine
+  - action: overlay
+    description: Raspberry Pi boot configuration
+    source: overlays/rpi-boot-config
   - action: filesystem-deploy
     description: Deploying filesystem onto image
-    setup-kernel-cmdline: true
   - action: run
     description: Compressing final image
     postprocess: true
-    command: xz -f {{ $image }}
+    command: xz -T0 -f {{ $image }}

@@ -39,4 +39,6 @@ jobs:
           GOPATH: /opt/src/gocode
       - uses: actions/checkout@v3
       - name: Build
-        run: sudo /opt/src/gocode/bin/debos rpi.go.yml
+        run: |
+          sudo /opt/src/gocode/bin/debos base-arm64.go.yml
+          sudo /opt/src/gocode/bin/debos rpi.go.yml

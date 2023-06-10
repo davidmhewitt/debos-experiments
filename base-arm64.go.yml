@@ -1,0 +1,37 @@
+{{- $image := or .image "elementary-base-arm64.tgz" -}}
+{{- $suite := or .suite "jammy" -}}
+{{- $variant := or .variant "stable" }}
+
+architecture: arm64
+
+actions:
+  - action: debootstrap
+    mirror: http://ports.ubuntu.com/ubuntu-ports/
+    suite: {{ $suite }}
+    keyring-file: ubuntu-keyring.gpg
+    components:
+      - main
+      - restricted
+      - multiverse
+      - universe
+  - action: run
+    chroot: true
+    command: echo "deb http://ports.ubuntu.com/ubuntu-ports/ {{ $suite }}-updates main restricted multiverse universe" >> /etc/apt/sources.list
+  - action: overlay
+    description: Add patches PPA
+    source: overlays/patches-ppa
+  {{ if eq $variant "stable" }}
+  - action: overlay
+    description: Add stable PPA
+    source: overlays/stable-ppa
+  {{ else }}
+  - action: overlay
+    description: Add daily PPA
+    source: overlays/daily-ppa
+  {{ end }}
+  - action: run
+    description: Run apt upgrade
+    chroot: true
+    command: apt-get update && apt-get upgrade -y
+  - action: pack
+    file: {{ $image }}
