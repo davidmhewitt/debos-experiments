@@ -1,0 +1,48 @@
+{{- $image := or .image "elementary-pinetab2.img" -}}
+{{- $suite := or .suite "jammy" -}}
+{{- $variant := or .variant "stable" }}
+
+architecture: arm64
+
+actions:
+  - action: unpack
+    file: elementary-base-arm64.tgz
+  - action: image-partition
+    imagename: {{ $image }}
+    imagesize: 15GB
+    partitiontype: msdos
+    mountpoints:
+      - mountpoint: /
+        partition: writable
+    partitions:
+      - name: writable
+        fs: ext4
+        start: 16MB
+        end: 100%
+        flags: [ boot ]
+  - action: overlay
+    description: Install initramfs config
+    source: overlays/pinetab2-initramfs-modules
+  - action: overlay
+    description: Install device tree
+    source: overlays/pinetab2-device-tree
+  - action: apt
+    description: Install kernel
+    packages:
+      - linux-image-generic
+  - action: overlay
+    description: Install bootloader config
+    source: overlays/pinetab2-extlinux
+  - action: overlay
+    description: Install oneshot root partition expansion service
+    source: overlays/expand-root
+  - action: filesystem-deploy
+    description: Deploying filesystem onto image
+  - action: raw
+    description: Writing U-boot to boot sector
+    source: firmware/pinetab2/u-boot-rockchip.bin
+    offset: 32768
+  - action: run
+    description: Compressing final image
+    postprocess: true
+    command: xz -T0 -f {{ $image }} 

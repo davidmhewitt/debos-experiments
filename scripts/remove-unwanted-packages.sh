@@ -16,4 +16,4 @@ done
 
 apt-get autoremove --purge -f -q -y git
 
-rm -R ../seeds ../platform
+rm -R ./seeds ./platform
