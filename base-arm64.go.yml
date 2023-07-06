@@ -19,7 +19,7 @@ actions:
     command: echo "deb http://ports.ubuntu.com/ubuntu-ports/ {{ $suite }}-updates main restricted multiverse universe" >> /etc/apt/sources.list
   - action: overlay
     description: Add patches PPA
-    source: overlays/patches-ppa
+    source: overlays/patches-ppa-{{ $suite }}
   {{ if eq $variant "stable" }}
   - action: overlay
     description: Add stable PPA
@@ -27,7 +27,7 @@ actions:
   {{ else }}
   - action: overlay
     description: Add daily PPA
-    source: overlays/daily-ppa
+    source: overlays/daily-ppa-{{ $suite }}
   {{ end }}
   - action: run
     description: Run apt upgrade

@@ -30,6 +30,14 @@ actions:
     description: Install kernel
     packages:
       - linux-image-generic
+      - linux-headers-generic
+  - action: overlay
+    description: Add PineTab2 PPA
+    source: overlays/pinetab2-ppa-mantic
+  - action: apt
+    description: Install LCD Driver
+    packages:
+      - boe-th101mb31ig002-28a-dkms 
   - action: overlay
     description: Install bootloader config
     source: overlays/pinetab2-extlinux
@@ -38,10 +46,11 @@ actions:
     source: overlays/expand-root
   - action: filesystem-deploy
     description: Deploying filesystem onto image
-  - action: raw
+  {{/* - action: raw
     description: Writing U-boot to boot sector
+    origin: recipe
     source: firmware/pinetab2/u-boot-rockchip.bin
-    offset: 32768
+    offset: {{ sector 1024 }} */}}
   - action: run
     description: Compressing final image
     postprocess: true
