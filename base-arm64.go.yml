@@ -18,6 +18,13 @@ actions:
     chroot: true
     command: echo "deb http://ports.ubuntu.com/ubuntu-ports/ {{ $suite }}-updates main restricted multiverse universe" >> /etc/apt/sources.list
   - action: overlay
+    description: Enable NetworkManager
+    source: overlays/network-manager-all
+  - action: run
+    description: Set hostname
+    chroot: true
+    command: echo "elementary" > /etc/hostname
+  - action: overlay
     description: Add patches PPA
     source: overlays/patches-ppa-{{ $suite }}
   {{ if eq $variant "stable" }}

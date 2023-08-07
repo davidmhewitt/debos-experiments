@@ -1,5 +1,6 @@
 {{- $image := or .image "elementary-pinetab2.img" -}}
 {{- $suite := or .suite "jammy" -}}
+{{- $kernel_suffix := or .kernel_suffix "generic" }}
 {{- $variant := or .variant "stable" }}
 
 architecture: arm64
@@ -23,17 +24,21 @@ actions:
   - action: overlay
     description: Install initramfs config
     source: overlays/pinetab2-initramfs-modules
+  - action: run
+    description: Set hostname
+    chroot: true
+    command: echo "pinetab2" > /etc/hostname
   - action: overlay
     description: Install device tree
     source: overlays/pinetab2-device-tree
   - action: apt
     description: Install kernel
     packages:
-      - linux-image-generic
-      - linux-headers-generic
+      - linux-image-{{ $kernel_suffix }}
+      - linux-headers-{{ $kernel_suffix }}
   - action: overlay
     description: Add PineTab2 PPA
-    source: overlays/pinetab2-ppa-mantic
+    source: overlays/pinetab2-ppa-{{ $suite }}
   - action: apt
     description: Install LCD Driver
     packages:
@@ -46,11 +51,11 @@ actions:
     source: overlays/expand-root
   - action: filesystem-deploy
     description: Deploying filesystem onto image
-  {{/* - action: raw
+  - action: raw
     description: Writing U-boot to boot sector
     origin: recipe
     source: firmware/pinetab2/u-boot-rockchip.bin
-    offset: {{ sector 1024 }} */}}
+    offset: {{ sector 64 }}
   - action: run
     description: Compressing final image
     postprocess: true
