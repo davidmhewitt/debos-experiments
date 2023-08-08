@@ -1,9 +1,7 @@
 #!/bin/sh
 # Description: Checkout seed branches and remove blacklisted packages
 
-export LSB_OS_RELEASE="/usr/lib/upstream-os-release"
-dist="$(lsb_release -c -s)"
-unset LSB_OS_RELEASE
+dist="$1"
 
 apt-get install --no-install-recommends -f -q -y git
 
