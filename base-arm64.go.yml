@@ -50,6 +50,6 @@ actions:
   - action: run
     chroot: true
     description: Remove unwanted packages
-    script: scripts/remove-unwanted-packages.sh
+    script: scripts/remove-unwanted-packages.sh {{ $suite }}
   - action: pack
     file: {{ $image }}
